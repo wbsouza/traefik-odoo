@@ -1,0 +1,35 @@
+*.pyc
+__pycache__/
+
+# IntelliJ
+/out/
+
+# mpeltonen/sbt-idea plugin
+.idea_modules/
+crashlytics.properties
+crashlytics-build.properties
+
+### Eclipse template
+*.pydevproject
+.metadata
+.gradle
+*.tmp
+*.bak
+*.swp
+*~.nib
+.settings/
+.bash_history
+.bash_profile
+.bashrc
+.profile
+.history
+
+.venv/
+volumes/odoo/postgresql/
+volumes/odoo/logs/
+volumes/odoo/data/
+volumes/odoo/conf/odoo.conf
+
+volumes/traefik/conf/letsencrypt
+volumes/traefik/conf/passwd
+
