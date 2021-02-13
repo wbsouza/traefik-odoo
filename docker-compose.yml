@@ -25,7 +25,7 @@ services:
       - --providers.file.filename=/dynamic.yml
       - --providers.docker.network=web
       - --entrypoints.http.address=:80
-      - --entrypoints.web-secure.address=:443
+      - --entrypoints.https.address=:443
       - --certificatesresolvers.le.acme.httpchallenge=true
       - --certificatesresolvers.le.acme.httpchallenge.entrypoint=http
       - --certificatesresolvers.le.acme.email=${LETS_ENCRYPT_CONTACT_EMAIL}
@@ -44,25 +44,27 @@ services:
       retries: 5
     labels:  
       - traefik.enable=true
-      - traefik.http.routers.traefik-web.service=traefik-web
-      - traefik.http.routers.traefik-web.entrypoints=web
-      - traefik.http.routers.traefik-web.rule=Host(`traefik.${DOMAIN_NAME}`)
-      - traefik.http.routers.traefik-web.middlewares=redirect@file
-
-      - traefik.http.routers.traefik-web-secure.rule=Host(`traefik.${DOMAIN_NAME}`)
-      - traefik.http.routers.traefik-web-secure.entrypoints=web-secure
-      - traefik.http.routers.traefik-web-secure.tls=true
-      - traefik.http.routers.traefik-web-secure.tls.options=default
-      - traefik.http.routers.traefik-web-secure.service=traefik
-      - traefik.http.routers.traefik-web-secure.tls.certresolver=le
+      - traefik.http.routers.traefik-http.rule=Host(`${TRAEFIK_HOSTNAME}`)
+      - traefik.http.routers.traefik-http.entrypoints=http
+      - traefik.http.routers.traefik-http.service=traefik
+      - traefik.http.routers.traefik-http.middlewares=redirect@file
+      - traefik.http.routers.traefik-https.rule=Host(`${TRAEFIK_HOSTNAME}`)
+      - traefik.http.routers.traefik-https.entrypoints=https
+      - traefik.http.routers.traefik-https.tls=true
+      - traefik.http.routers.traefik-https.tls.options=default
+      - traefik.http.routers.traefik-https.service=traefik
+      - traefik.http.routers.traefik-https.tls.certresolver=le
       - traefik.http.services.traefik.loadbalancer.server.port=8080
-      - traefik.http.routers.traefik-web-secure.middlewares=auth,gzip
-      - traefik.http.middlewares.auth.basicauth.removeheader=true
-      #- traefik.http.middlewares.auth.basicauth.usersFile=${BASE_VOLUME_DIR}/traefik/etc/passwd
+      - traefik.http.routers.traefik-https.middlewares=gzip #,auth
       - traefik.http.middlewares.gzip.compress=true
+      # auth
+      #- traefik.http.middlewares.auth.basicauth.removeheader=true
+      #- traefik.http.middlewares.auth.basicauth.usersFile=${BASE_VOLUME_DIR}/traefik/conf/passwd/passwd
+
+
 
   odoo:
-    image: wbsouza/odoo:11.0
+    image: registry.wisecoding.io/docker/odoo:11.0
     container_name: odoo
     networks:
       - web
@@ -71,7 +73,7 @@ services:
       - "8069:8069"
       - "8072:8072"
     volumes:
-      #- "${BASE_VOLUME_DIR}/odoo/entrypoint.sh:/entrypoint.sh"
+      - "${BASE_VOLUME_DIR}/odoo/entrypoint.sh:/entrypoint.sh"
       - "${BASE_VOLUME_DIR}/odoo/extra-addons:/opt/odoo/extra-addons"
       - "${BASE_VOLUME_DIR}/odoo/data:/opt/odoo/data"
       - "${BASE_VOLUME_DIR}/odoo/logs:/opt/odoo/logs"
@@ -81,27 +83,35 @@ services:
         soft: 65536
         hard: 65536
     labels:
+      #### Labels define the behavior and rules of the traefik proxy for this container ####
       - traefik.enable=true
-      - traefik.http.routers.odoo-web.service=odoo-web
-      - traefik.http.routers.odoo-web.entrypoints=web
-      - traefik.http.routers.odoo-web.middlewares=redirect@file
-      
-      - traefik.http.routers.odoo-web-secure.service=odoo-web-secure
-      - traefik.http.routers.odoo-web-secure.entrypoints=web-secure
-      - traefik.http.routers.odoo-web.rule=Host(`odoo.${DOMAIN_NAME}`)
-      - traefik.http.routers.odoo-web-secure.rule=Host(`odoo.${DOMAIN_NAME}`)
-      - traefik.http.routers.odoo-web-secure.tls.certresolver=le
-      - traefik.http.routers.odoo-web-secure.middlewares=gzip,sslheader
-      - traefik.http.services.odoo-web-secure.loadbalancer.server.port=8069
+      - traefik.http.routers.odoo-http.rule=Host(`${ODOO_HOSTNAME}`)
+      - traefik.http.routers.odoo-http.entrypoints=http
+      - traefik.http.routers.odoo-http.service=odoo-http
+      - traefik.http.services.odoo-http.loadbalancer.server.port=8069
+      - traefik.http.routers.odoo-http.middlewares=redirect@file
+      - traefik.http.routers.odoo-https.rule=Host(`${ODOO_HOSTNAME}`)
+      - traefik.http.routers.odoo-https.entrypoints=https
+      - traefik.http.routers.odoo-https.service=odoo-https
+      - traefik.http.routers.odoo-https.tls.certresolver=le
+      - traefik.http.routers.odoo-https.middlewares=gzip
+      - traefik.http.services.odoo-https.loadbalancer.server.port=8069
 
-      # longpoling
-      - traefik.http.routers.im-web-secure.service=im-web-secure
-      - traefik.http.routers.im-web-secure.entrypoints=web-secure
-      - traefik.http.routers.im-web-secure.rule=Host(`odoo.${DOMAIN_NAME}`) && (PathPrefix(`/longpoling`))
-      - traefik.http.routers.im-web-secure.tls.certresolver=le
-      - traefik.http.routers.im-web-secure.middlewares=gzip,sslheader
-      - traefik.http.services.im-web-secure.loadbalancer.server.port=8072
+       # longpoling
+      - traefik.http.routers.odoo-im-https.rule=Host(`${ODOO_HOSTNAME}`) && (PathPrefix(`/longpoling`))
+      - traefik.http.routers.odoo-im-https.entrypoints=https
+      - traefik.http.routers.odoo-im-https.service=odoo-im-https
+      - traefik.http.routers.odoo-im-https.tls.certresolver=le
+      - traefik.http.routers.odoo-im-https.middlewares=gzip,sslheader
+      - traefik.http.services.odoo-im-https.loadbalancer.server.port=80
 
+
+
+
+
+ 
       # middlewares
       - traefik.http.middlewares.gzip.compress=true
       - traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https
+
+
