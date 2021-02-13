@@ -1,6 +1,6 @@
 # odoo-traefik
 
-Odoo + Traefik (trying to replace the Nginx proxy)
+Odoo + Traefik (replacing the Nginx reverse proxy)
 
 
 ## Important note
@@ -13,7 +13,7 @@ make your own Odoo image, the source code of the image is available on [https://
 
 ## Initial setup
 
-1. Access your domain provider and add the following entries to your domain:
+1. Access your domain provider and add the following entries to your domain (`A` or `CNAME`)
   - `traefik.mycompany.io`
   - `odoo.mycompany.io`
 
@@ -34,22 +34,17 @@ make your own Odoo image, the source code of the image is available on [https://
 8. Change the configuration file `volumes/odoo/conf/odoo.conf` append the following parameters in the end of the file:
 ```
 proxy_mode = True
-workers = 3
+workers = 4
 ```
 
 9. Login again with the default credentials
 
-10. Check the log files as well the browser looking for JavaScript errors
+10. Check the log files as well the browser looking for JavaScript errors, it should be working without any problem
 
 
 ## Throubleshooting (knowed issue)
-1) The current implemnetation has an issue, the Traefik is not working properly as a proxy for the Odoo `/longpoling` port 7082
-when we set the `workers > 1` in the file `volumes/odoo/conf/odoo.conf`. See, the example `volumes/odoo/conf.odoo.conf.sample`.
-
-2) If you want create volumes like in the `odoo.conf.sample` file, make sure to give the right permissions or change the owner
+1) If you want create volumes like in the `odoo.conf.sample` file, make sure to give the right permissions or change the owner
 in the host filesystem volumes, because the container will run with an unprivileged user (`odoo, UID=9100, GID=9100`).
 
 `chown -fR '9100:9100' volumes/odoo`
 
-
-   
