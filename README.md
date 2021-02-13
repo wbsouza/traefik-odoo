@@ -31,8 +31,9 @@ make your own Odoo image, the source code of the image is available on [https://
 when we set the `workers > 1` in the file `volumes/odoo/conf/odoo.conf`. See, the example `volumes/odoo/conf.odoo.conf.sample`.
 
 2) If you want create volumes like in the `odoo.conf.sample` file, make sure to give the right permissions or change the owner
-in the host filesystem volumes, because the container will run with an unprivileged user (odoo, UID=9100, GID=9100).
+in the host filesystem volumes, because the container will run with an unprivileged user (`odoo, UID=9100, GID=9100`).
 
 `chown -fR '9100:9100' volumes/odoo`
+
 
    
