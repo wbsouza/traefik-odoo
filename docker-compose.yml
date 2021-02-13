@@ -88,8 +88,8 @@ services:
       
       - traefik.http.routers.odoo-web-secure.service=odoo-web-secure
       - traefik.http.routers.odoo-web-secure.entrypoints=web-secure
-      - traefik.http.routers.odoo-web.rule=Host(`sales.${DOMAIN_NAME}`)
-      - traefik.http.routers.odoo-web-secure.rule=Host(`sales.${DOMAIN_NAME}`)
+      - traefik.http.routers.odoo-web.rule=Host(`odoo.${DOMAIN_NAME}`)
+      - traefik.http.routers.odoo-web-secure.rule=Host(`odoo.${DOMAIN_NAME}`)
       - traefik.http.routers.odoo-web-secure.tls.certresolver=le
       - traefik.http.routers.odoo-web-secure.middlewares=gzip,sslheader
       - traefik.http.services.odoo-web-secure.loadbalancer.server.port=8069

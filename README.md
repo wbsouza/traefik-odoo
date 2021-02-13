@@ -8,7 +8,7 @@ The docker image wbsouza/odoo:11.0 contains everything to run Odoo (including th
 It's not recommended to run this image in production, it was build only for test purpose, to
 demonstrate a potential inconsistence using Traefik as a proxy for Odoo. 
 
-*** The database is going to be re-created if you remove the file `volumes/odoo/conf/initialized`. ***
+*** The database is going to be re-created if you remove the file `volumes/odoo/conf/.initialized`. ***
 
 ## Initial setup
 
