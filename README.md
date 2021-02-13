@@ -24,7 +24,13 @@ make your own Odoo image, the source code of the image is available on [https://
 
 3. Execute `docker-compose up`
 
+6. Login with the default credentials (admin/admin)
 
+5. Install the CRM module (or any other backend module)
+
+6. Logout and Login again
+
+7. Check the log files as well the browser looking for JavaScript errors
 
 ## Throubleshooting (knowed issue)
 1) The current implemnetation has an issue, the Traefik is not working properly as a proxy for the Odoo `/longpoling` port 7082
