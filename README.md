@@ -20,17 +20,27 @@ make your own Odoo image, the source code of the image is available on [https://
 2. Create a bridge network to be used by the containers
   - `docker create network web`
 
-2. Copy the file .env.sample to .env and change the domain name and the email for the LetsEncript certificate
+3. Copy the file .env.sample to .env and change the domain name and the email for the LetsEncript certificate
 
-3. Execute `docker-compose up`
+4. Execute `docker-compose up`
 
-6. Login with the default credentials (admin/admin)
+5. Login with the default credentials (admin/admin)
 
-5. Install the CRM module (or any other backend module)
+6. Install the CRM module (or any other backend module)
 
-6. Logout and Login again
+7. Stop the odoo container
+`docker stop odoo`
 
-7. Check the log files as well the browser looking for JavaScript errors
+8. Change the configuration file `volumes/odoo/conf/odoo.conf` adding the following parameters:
+```
+proxy_mode = True
+workers = 3
+```
+
+9. Login again with the default credentials
+
+10. Check the log files as well the browser looking for JavaScript errors
+
 
 ## Throubleshooting (knowed issue)
 1) The current implemnetation has an issue, the Traefik is not working properly as a proxy for the Odoo `/longpoling` port 7082
