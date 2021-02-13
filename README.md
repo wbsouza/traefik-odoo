@@ -31,7 +31,7 @@ make your own Odoo image, the source code of the image is available on [https://
 7. Stop the odoo container
 `docker stop odoo`
 
-8. Change the configuration file `volumes/odoo/conf/odoo.conf` adding the following parameters:
+8. Change the configuration file `volumes/odoo/conf/odoo.conf` append the following parameters in the end of the file:
 ```
 proxy_mode = True
 workers = 3
