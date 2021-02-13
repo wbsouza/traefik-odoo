@@ -86,7 +86,7 @@ services:
       - traefik.http.services.odoo-https.loadbalancer.server.port=8069
 
        # longpoling
-      - traefik.http.routers.odoo-im-https.rule=Host(`${ODOO_HOSTNAME}`) && (PathPrefix(`/longpoling`))
+      - traefik.http.routers.odoo-im-https.rule=Host(`${ODOO_HOSTNAME}`) && (PathPrefix(`/longpolling`))
       - traefik.http.routers.odoo-im-https.entrypoints=https
       - traefik.http.routers.odoo-im-https.service=odoo-im-https
       - traefik.http.routers.odoo-im-https.tls.certresolver=le
@@ -96,5 +96,3 @@ services:
       # middlewares
       - traefik.http.middlewares.gzip.compress=true
       - traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https
-
-
