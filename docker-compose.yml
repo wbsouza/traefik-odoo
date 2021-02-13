@@ -91,8 +91,10 @@ services:
       - traefik.http.routers.odoo-im-https.service=odoo-im-https
       - traefik.http.routers.odoo-im-https.tls.certresolver=le
       - traefik.http.routers.odoo-im-https.middlewares=gzip,sslheader
-      - traefik.http.services.odoo-im-https.loadbalancer.server.port=80
+      - traefik.http.services.odoo-im-https.loadbalancer.server.port=8072
 
       # middlewares
       - traefik.http.middlewares.gzip.compress=true
       - traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https
+
+
