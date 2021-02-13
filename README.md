@@ -6,7 +6,8 @@ Odoo + Traefik (trying to replace the Nginx proxy)
 ## Important note
 The docker image wbsouza/odoo:11.0 contains everything to run Odoo (including the PostgreSQL).
 It's not recommended to run this image in production, it was build only for test purpose, to
-demonstrate a potential inconsistence using Traefik as a proxy for Odoo. 
+demonstrate a potential inconsistence using Traefik as a proxy for Odoo. Feel free to customize or
+make your own Odoo image, the source code of the image is available on [https://github.com/wbsouza/odoo-docker](https://github.com/wbsouza/odoo-docker).
 
 *** The database is going to be re-created if you remove the file `volumes/odoo/conf/.initialized`. ***
 
@@ -28,5 +29,3 @@ demonstrate a potential inconsistence using Traefik as a proxy for Odoo.
 ## Throubleshooting (knowed issue)
 The current implemnetation has an issue, the Traefik is not working properly as a proxy for the Odoo `/longpoling` port 7082
 when we set the `workers > 1` in the file `volumes/odoo/conf/odoo.conf`. See, the example `volumes/odoo/conf.odoo.conf.sample`.
-
-
