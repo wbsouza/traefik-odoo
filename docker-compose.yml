@@ -35,13 +35,7 @@ services:
     volumes:
       - "${BASE_VOLUME_DIR}/traefik/conf/letsencrypt:/letsencrypt"
       - "${BASE_VOLUME_DIR}/traefik/conf/dynamic.yml:/dynamic.yml"
-      #- "${BASE_VOLUME_DIR}/traefik/conf/passwd:${PWD}/etc/passwd"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-    healthcheck:
-      test: ["CMD-SHELL", "nc -z -v 127.0.0.1 443"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
     labels:  
       - traefik.enable=true
       - traefik.http.routers.traefik-http.rule=Host(`${TRAEFIK_HOSTNAME}`)
@@ -55,11 +49,8 @@ services:
       - traefik.http.routers.traefik-https.service=traefik
       - traefik.http.routers.traefik-https.tls.certresolver=le
       - traefik.http.services.traefik.loadbalancer.server.port=8080
-      - traefik.http.routers.traefik-https.middlewares=gzip #,auth
+      - traefik.http.routers.traefik-https.middlewares=gzip
       - traefik.http.middlewares.gzip.compress=true
-      # auth
-      #- traefik.http.middlewares.auth.basicauth.removeheader=true
-      #- traefik.http.middlewares.auth.basicauth.usersFile=${BASE_VOLUME_DIR}/traefik/conf/passwd/passwd
 
   odoo:
     image: registry.wisecoding.io/docker/odoo:11.0
@@ -81,7 +72,6 @@ services:
         soft: 65536
         hard: 65536
     labels:
-      #### Labels define the behavior and rules of the traefik proxy for this container ####
       - traefik.enable=true
       - traefik.http.routers.odoo-http.rule=Host(`${ODOO_HOSTNAME}`)
       - traefik.http.routers.odoo-http.entrypoints=http
