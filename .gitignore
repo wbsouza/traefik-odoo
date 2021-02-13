@@ -23,6 +23,9 @@ crashlytics-build.properties
 .bashrc
 .profile
 .history
+.env
+volumes/odoo/conf/.initialized
+
 
 .venv/
 volumes/odoo/postgresql/
