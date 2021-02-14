@@ -58,11 +58,13 @@ services:
     networks:
       - web
     env_file: .env
-    ports:
-      - "8069:8069"
-      - "8072:8072"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -X HEAD -I http://127.0.0.1:8069"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
     volumes:
-      - "${BASE_VOLUME_DIR}/odoo/entrypoint.sh:/entrypoint.sh"
+      #- "${BASE_VOLUME_DIR}/odoo/entrypoint.sh:/entrypoint.sh"
       - "${BASE_VOLUME_DIR}/odoo/extra-addons:/opt/odoo/extra-addons"
       - "${BASE_VOLUME_DIR}/odoo/data:/opt/odoo/data"
       - "${BASE_VOLUME_DIR}/odoo/logs:/opt/odoo/logs"
@@ -71,30 +73,55 @@ services:
       nofile:
         soft: 65536
         hard: 65536
+
     labels:
       - traefik.enable=true
+      #----------------------------------------------- routers for: odoo --------------------------------------------------
+      # http
       - traefik.http.routers.odoo-http.rule=Host(`${ODOO_HOSTNAME}`)
       - traefik.http.routers.odoo-http.entrypoints=http
-      - traefik.http.routers.odoo-http.service=odoo-http
-      - traefik.http.services.odoo-http.loadbalancer.server.port=8069
       - traefik.http.routers.odoo-http.middlewares=redirect@file
+      - traefik.http.routers.odoo-http.service=odoo
+      # https
       - traefik.http.routers.odoo-https.rule=Host(`${ODOO_HOSTNAME}`)
       - traefik.http.routers.odoo-https.entrypoints=https
-      - traefik.http.routers.odoo-https.service=odoo-https
+      - traefik.http.routers.odoo-https.service=odoo
       - traefik.http.routers.odoo-https.tls.certresolver=le
-      - traefik.http.routers.odoo-https.middlewares=gzip
-      - traefik.http.services.odoo-https.loadbalancer.server.port=8069
-
-       # longpoling
+      - traefik.http.routers.odoo-https.middlewares=gzip,sslheader,limit
+      #----------------------------- routes for: odoo/web/database || odoo/website/info  -----------------------------
+      # http 
+      - traefik.http.routers.odoo-db-http.rule=Host(`${ODOO_HOSTNAME}`) && (PathPrefix(`/web/database`) || PathPrefix(`/website/info`))
+      - traefik.http.routers.odoo-db-http.entrypoints=http
+      - traefik.http.routers.odoo-db-http.service=odoo
+      - traefik.http.routers.odoo-db-http.middlewares=redirect@file
+      - traefik.http.services.odoo-db-http.loadbalancer.server.port=8069
+      # https 
+      - traefik.http.routers.odoo-db-https.rule=Host(`${ODOO_HOSTNAME}`) && (PathPrefix(`/web/database`) || PathPrefix(`/website/info`))
+      - traefik.http.routers.odoo-db-https.entrypoints=https
+      - traefik.http.routers.odoo-db-https.service=odoo
+      - traefik.http.routers.odoo-db-https.tls.certresolver=le
+      - traefik.http.routers.odoo-db-https.middlewares=gzip,sslheader,limit
+      - traefik.http.services.odoo-db-https.loadbalancer.server.port=8069
+      #---------------------------------------- routes for: odoo/longpolling ------------------------------------------------
+      # http 
+      - traefik.http.routers.odoo-im-http.rule=Host(`${ODOO_HOSTNAME}`) && (PathPrefix(`/longpolling`))
+      - traefik.http.routers.odoo-im-http.entrypoints=http
+      - traefik.http.routers.odoo-im-http.middlewares=redirect@file
+      - traefik.http.routers.odoo-im-http.service=odoo-im
+      # https 
       - traefik.http.routers.odoo-im-https.rule=Host(`${ODOO_HOSTNAME}`) && (PathPrefix(`/longpolling`))
       - traefik.http.routers.odoo-im-https.entrypoints=https
-      - traefik.http.routers.odoo-im-https.service=odoo-im-https
+      - traefik.http.routers.odoo-im-https.service=odoo-im
       - traefik.http.routers.odoo-im-https.tls.certresolver=le
-      - traefik.http.routers.odoo-im-https.middlewares=gzip,sslheader
-      - traefik.http.services.odoo-im-https.loadbalancer.server.port=8072
+      - traefik.http.routers.odoo-im-https.middlewares=gzip,sslheader,limit
+      
+      #====================================================== services ===========================================================
+      - traefik.http.services.odoo.loadbalancer.server.port=8069
+      - traefik.http.services.odoo-im.loadbalancer.server.port=8072
 
-      # middlewares
+      #===================================================== middlewares =========================================================
       - traefik.http.middlewares.gzip.compress=true
       - traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https
-
+      - traefik.http.middlewares.limit.buffering.memRequestBodyBytes=20971520
+      - traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=20971520
 
